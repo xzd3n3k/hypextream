@@ -7,6 +7,7 @@ type ButtonSize = "default" | "sm" | "lg" | "icon";
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: ButtonVariant;
     size?: ButtonSize;
+    hasChild?: boolean;
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
@@ -26,12 +27,29 @@ const sizeClasses: Record<ButtonSize, string> = {
 };
 
 const baseClasses =
-        "cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
+    "cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0";
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-    ({ className, variant = "default", size = "default", ...props }, ref) => {
+    ({ className, variant = "default", size = "default", hasChild = false, children, ...props }, ref) => {
         const classes = cn(baseClasses, variantClasses[variant], sizeClasses[size], className);
-        return <button ref={ref} className={classes} {...props} />;
+
+        if (hasChild) {
+            const onlyChild = React.Children.only(children);
+
+            if (React.isValidElement<{ className?: string }>(onlyChild)) {
+                return React.cloneElement(onlyChild, {
+                    className: cn(classes, onlyChild.props.className),
+                });
+            }
+
+            return null;
+        }
+
+        return (
+            <button ref={ref} className={classes} {...props}>
+                {children}
+            </button>
+        );
     }
 );
 
