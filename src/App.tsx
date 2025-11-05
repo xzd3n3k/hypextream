@@ -1,4 +1,3 @@
-import './App.css'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import NotFound from "./pages/NotFound.tsx";
 import Index from "./pages/Index.tsx";
